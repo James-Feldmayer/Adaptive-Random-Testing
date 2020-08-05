@@ -35,7 +35,14 @@ def draw_square_failure_region(length):
 
     point = random_point(400, 400)
 
-    rectangle = Rectangle(Point(point.x, point.y), Point(point.x+length, point.y+length))
+    offset = Point(0, 0)
+
+    if point.x+length > 400:
+        offset.x = point.x+length-400
+    if point.y+length > 400:
+        offset.y = point.y+length-400
+
+    rectangle = Rectangle(Point(point.x-offset.x, point.y-offset.y), Point(point.x+length-offset.x, point.y+length-offset.y))
     rectangle.setFill("red")
     rectangle.setOutline("red")
     rectangle.draw(window)
