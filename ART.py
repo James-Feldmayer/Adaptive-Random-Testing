@@ -1,14 +1,12 @@
 
 from graphics import *
 
-def draw_point(start):
-    point = Point(start[0], start[1])
+def draw_point(point):
     point.draw(window)
 
 def random_point(width, height):
     import random
-    return (random.randrange(0, width), random.
-    randrange(0, height))
+    return Point(random.randrange(0, width), random.randrange(0, height))
 
 def euclidean_distance(first, second):
     import numpy
@@ -33,8 +31,11 @@ def adaptive_random_testing(width, height):
         
     print(art)
 
-def draw_failure_region(start, dimensions):
-    rectangle = Rectangle(Point(30, 30), Point(10, 10))
+def draw_square_failure_region(length):
+
+    point = random_point(400, 400)
+
+    rectangle = Rectangle(Point(point.x, point.y), Point(point.x+length, point.y+length))
     rectangle.setFill("red")
     rectangle.setOutline("red")
     rectangle.draw(window)
@@ -55,7 +56,7 @@ if failure_rate >= 1:
 
 window = GraphWin(width = width, height = height)
 
-draw_square(0, 0)
+draw_square_failure_region(int(width*failure_rate))
 
 # euclidean_distance(random_point(0, 10), random_point(0, 10))
 
