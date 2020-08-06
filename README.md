@@ -5,4 +5,6 @@ Step1. Install Python3
 
 Step2. In the terminal "pip install graphics.py"
 
-Step3. Run ART.py (It will either work or will say install tkinter)
+Step3. In the terminal "pip install numpy"
+
+Step4. Run basic.py (It will either work or will say install tkinter)
