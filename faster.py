@@ -2,7 +2,8 @@
 from graphics import *
 
 def draw_point(point):
-    point.draw(window)
+    # point.draw(window)
+    None
 
 def random_point(width, height):
     import random
@@ -34,12 +35,14 @@ def RT(top_left, bottom_right, wait = False):
             time.sleep(1)
 
 def calculate_minimum_distance(test_cases, new_point):    
-    distances = []
+    minimum_distance = euclidean_distance(test_cases[0], new_point)
 
-    for point in test_cases:
-        distances.append(euclidean_distance(point, new_point))
+    for i in range(1, len(test_cases)):
+        distance = euclidean_distance(test_cases[i], new_point)
+        if distance < minimum_distance:
+            minimum_distance = distance
 
-    return min(distances)
+    return minimum_distance
 
 def FSCS_ART(top_left, bottom_right):
     test_cases = []
@@ -96,16 +99,20 @@ def failure_region(length):
     return top_left, bottom_right
 
 def draw_failure_region(top_left, bottom_right):
+    """
     rectangle = Rectangle(top_left, bottom_right)
     rectangle.setFill("red")
     rectangle.setOutline("red")
     rectangle.draw(window)
+    """
 
 def write_some_text():
+    """
     txt = Text(Point(400, 250), "Hello and welcome to FizzBuzz!")
     txt.setSize(22)
     txt.setFace("courier")
     txt.draw(window)
+    """
 
 def failure_detected(top_left, bottom_right, attempt, print = False):
 
@@ -131,7 +138,9 @@ def failure_detected(top_left, bottom_right, attempt, print = False):
 
 total = 0
 
-for i in range(0, 100):
+passes = 100
+
+for i in range(0, passes):
     
     # just gonna put the whole thing inside a box
     # and I will be well on my way
@@ -159,7 +168,7 @@ for i in range(0, 100):
     if failure_rate >= 1:
         raise Exception("The failure rate should be less than 1") 
 
-    window = GraphWin(width = 400, height = 400)
+    # window = GraphWin(width = 400, height = 400)
 
     # top_left, bottom_right 
     # width, heigh
@@ -174,10 +183,17 @@ for i in range(0, 100):
     top_left, bottom_right = failure_region(int(400*failure_rate))
     draw_failure_region(top_left, bottom_right)
 
-    total += RT(top_left, bottom_right)
-    # total += FSCS_ART(top_left, bottom_right)
+    # total += RT(top_left, bottom_right)
+    total += FSCS_ART(top_left, bottom_right)
+
+    """
+    FSCS_ART takes a lot less attempts than RT but takes
+    significantly more time to calculate an attempt
+
+    Less attempts saves a variable ammount of time
+    """
 
     # window.getMouse()
-    window.close()
+    # window.close()
 
-print(total/100)
+print(total/passes)
