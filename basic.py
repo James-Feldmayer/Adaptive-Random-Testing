@@ -1,12 +1,6 @@
 
 from graphics import *
 
-def draw_point(point):
-    point.draw(window)
-
-def random_point(width, height):
-    import random
-    return Point(random.randrange(0, width), random.randrange(0, height))
 
 def euclidean_distance(pointA, pointB):
     import numpy
@@ -14,26 +8,8 @@ def euclidean_distance(pointA, pointB):
     b = numpy.array([pointB.x, pointB.y])
     return numpy.linalg.norm(a-b)
 
-def test_point(top_left, bottom_right, point):
-    draw_point(point)
-    return failure_detected(top_left, bottom_right, point)
 
-def RT(top_left, bottom_right, wait = False):
-    
-    count = 0
-    
-    while(True):
-        count += 1
-
-        if test_point(top_left, bottom_right, random_point(400, 400)):
-            # print("HIT!!!")
-            return count 
-
-        if wait:
-            import time
-            time.sleep(1)
-
-def calculate_minimum_distance(test_cases, new_point):    
+def calculate_minimum_distance(test_cases, new_point):
     distances = []
 
     for point in test_cases:
@@ -41,146 +17,205 @@ def calculate_minimum_distance(test_cases, new_point):
 
     return min(distances)
 
-def FSCS_ART(top_left, bottom_right):
-    test_cases = []
 
-    first_point = random_point(400, 400) 
+#
 
-    if test_point(top_left, bottom_right, first_point):
-        # print("HIT!!!")
-        return 1 
-
-    test_cases.append(first_point) 
-
-    count = 1
-
-    while(True):
-
-        count += 1    
-
-        # refactor this as its own function
-
-        largest_minimum_distance_point = Point(0, 0) # return this
-
-        largest_minimum_distance = 0
-        for i in range(0, k := 10):
-            new_point = random_point(400, 400) 
-            new_minimum_distance = calculate_minimum_distance(test_cases, new_point)
-            if new_minimum_distance > largest_minimum_distance:
-                largest_minimum_distance = new_minimum_distance
-                largest_minimum_distance_point = new_point
-            
-        # test the program using t as a test case
-        # using "largest_minimum_distance_point"
-
-        if test_point(top_left, bottom_right, largest_minimum_distance_point):
-            # print("HIT!!!")
-            return count
-
-        test_cases.append(largest_minimum_distance_point)
-
-def failure_region(length):
-
-    point = random_point(400, 400)
-
-    offset = Point(0, 0)
-
-    if point.x+length > 400:
-        offset.x = point.x+length-400
-    if point.y+length > 400:
-        offset.y = point.y+length-400
-
-    top_left = Point(point.x-offset.x, point.y-offset.y)
-    bottom_right = Point(point.x+length-offset.x, point.y+length-offset.y)
-
-    return top_left, bottom_right
-
-def draw_failure_region(top_left, bottom_right):
+def draw_solid_rectangle(top_left, bottom_right, colour):
     rectangle = Rectangle(top_left, bottom_right)
-    rectangle.setFill("red")
-    rectangle.setOutline("red")
+    rectangle.setFill(colour)
+    rectangle.setOutline(colour)
     rectangle.draw(window)
 
-def write_some_text():
-    txt = Text(Point(400, 250), "Hello and welcome to FizzBuzz!")
-    txt.setSize(22)
-    txt.setFace("courier")
-    txt.draw(window)
 
-def failure_detected(top_left, bottom_right, attempt, print = False):
+def random_point(top_left, bottom_right):
+    import random
+    return Point(random.randrange(top_left.x, bottom_right.x), random.randrange(top_left.y, bottom_right.y))
 
-    too_high = not attempt.y >= top_left.y
-    too_low = not attempt.y <= bottom_right.y
-    too_left = not attempt.x >= top_left.x
-    too_right = not attempt.x <= bottom_right.x
 
-    if print:
-        if too_high:
-            print("too high") 
-        
-        if too_low:
-            print("too low")
-        
-        if too_left: 
-            print("too left")
-        
-        if too_right:
-            print("too right")
-        
-    return not too_high and not too_low and not too_left and not too_right
+class Canvas:
+    # a canvas represents the 2d input space of a program
 
-total = 0
+    def __init__(self, top_left, bottom_right):
+        self.top_left = top_left
+        self.bottom_right = bottom_right
+        self.draw_solid_rectangle("lime")
 
-# for i in range(0, 100):
-if True:    
+    def random_point(self):
+        return random_point(self.top_left, self.bottom_right)
 
-    # just gonna put the whole thing inside a box
-    # and I will be well on my way
+    def draw_random_point(self):
+        self.random_point().draw(window)
 
-    # probably not a good idea to have the whole thing 
-    # based on fitting inside the canvas anyway
+    """
+    def test_point(self, attempt):
+        attempt.draw(window)
+        return self.failure_detected(attempt)
+    """
 
-    # does the size of the input space need to be 
-    # variable?
+    def draw_solid_rectangle(self, colour):
+        draw_solid_rectangle(self.top_left, self.bottom_right, colour)
 
-    # width = 400
-    # height = 400
+    def FSCS_ART(self):
+        test_cases = []
 
-    # not sure if we need to be able to do this or not?
-    # probably not very difficult though
+        first_point = self.random_point()
 
-    # width = int(input("What is the width? "))
-    # height = int(input("What is the height? "))
+        if self.test_point(first_point):
+            # print("HIT!!!")
+            return 1
 
-    failure_rate = float(input("What is the failure rate? "))
-    # failure_rate = 0.3
+        test_cases.append(first_point)
 
-    if failure_rate <= 0:
-        raise Exception("The failure rate should be greater than 0")
-    if failure_rate >= 1:
-        raise Exception("The failure rate should be less than 1") 
+        count = 1
 
-    window = GraphWin(width = 400, height = 400)
+        while(True):
 
-    # top_left, bottom_right 
-    # width, heigh
+            count += 1
 
-    # very ugly
+            # refactor this as its own function
 
-    # really need to figure this out
+            largest_minimum_distance_point = Point(0, 0)
 
-    # top_left and bottom_right are the 
-    # courner points of the failure region 
+            largest_minimum_distance = 0
+            for i in range(0, k := 10):
+                new_point = self.random_point()
+                new_minimum_distance = calculate_minimum_distance(
+                    test_cases, new_point)
+                if new_minimum_distance > largest_minimum_distance:
+                    largest_minimum_distance = new_minimum_distance
+                    largest_minimum_distance_point = new_point
 
-    top_left, bottom_right = failure_region(int(400*failure_rate))
-    draw_failure_region(top_left, bottom_right)
+            # test the program using t as a test case
+            # using "largest_minimum_distance_point"
 
-    total += RT(top_left, bottom_right)
-    # total += FSCS_ART(top_left, bottom_right)
+            if test_point(largest_minimum_distance_point):
+                # print("HIT!!!")
+                return count
 
-    print(total)
+            test_cases.append(largest_minimum_distance_point)
 
-    window.getMouse()
-    # window.close()
+    def RT(self, wait=False):
 
-# print(total/100)
+        count = 0
+
+        while(True):
+            count += 1
+
+            if test_point(self.random_point()):
+                # print("HIT!!!")
+                return count
+
+            if wait:
+                import time
+                time.sleep(1)
+
+    def RectangleFailureRegion(self, failure_rate):
+
+        square_width = (self.bottom_right.x - self.top_left.x)
+        square_height = (self.bottom_right.y - self.top_left.y)
+        square_area = square_width*square_height
+        failure_area = square_area*failure_rate
+
+        import random
+
+        # dosn't work real well
+        # gives correct test cases but very uneven distribution
+
+        rectangle_width = int(square_width * failure_rate *
+                              random.randrange(1, pow(failure_rate, -1)))
+
+        # 1-2 vertical
+        # 3 square
+        # 4-10 horizontal
+
+        # horizontal 70% of the time
+        # need to fix this
+
+        # could swap focus
+        # use rectangle_width vs rectangle_height as the random one
+        # should even it out quite a bit
+        # but is still a mediocre solution
+
+        rectangle_height = int(failure_area / rectangle_width)
+
+        draw_solid_rectangle(Point(self.top_left.x, self.top_left.y), Point(
+            self.top_left.x+rectangle_width, self.top_left.y+rectangle_height), "blue")
+
+        # point = random_point(Point(self.top_left.x, self.top_left.y), Point(
+        # self.top_left.x+square_width*(1 - failure_rate), self.top_left.y+square_height*(1 - failure_rate)))
+
+        # return FailureRegion(point, Point(point.x+square_width*failure_rate, point.y+square_height*failure_rate))
+
+    def SquareFailureRegion(self, failure_rate):
+
+        square_height = (self.bottom_right.y - self.top_left.y)
+        square_width = (self.bottom_right.x - self.top_left.x)
+
+        draw_solid_rectangle(Point(self.top_left.x, self.top_left.y), Point(
+            self.top_left.x+square_width*(1 - failure_rate), self.top_left.y+square_height*(1 - failure_rate)), "blue")
+
+        point = random_point(Point(self.top_left.x, self.top_left.y), Point(
+            self.top_left.x+square_width*(1 - failure_rate), self.top_left.y+square_height*(1 - failure_rate)))
+
+        return FailureRegion(point, Point(point.x+square_width*failure_rate, point.y+square_height*failure_rate))
+
+# need to write a function which creates a
+# FailureRegion from a Canvas
+# square_ basically already exists
+# needs a better name
+
+
+class FailureRegion(Canvas):
+
+    def __init__(self, top_left, bottom_right):
+        self.top_left = top_left
+        self.bottom_right = bottom_right
+        self.draw_solid_rectangle("red")
+
+    def failure_detected(self, attempt):
+        too_high = not attempt.y >= self.top_left.y
+        too_low = not attempt.y <= self.bottom_right.y
+        too_left = not attempt.x >= self.top_left.x
+        too_right = not attempt.x <= self.bottom_right.x
+
+        if False:
+            if too_high:
+                print("too high")
+
+            if too_low:
+                print("too low")
+
+            if too_left:
+                print("too left")
+
+            if too_right:
+                print("too right")
+
+        return not too_high and not too_low and not too_left and not too_right
+
+
+"""
+width = int(input("What is the width? "))
+height = int(input("What is the height? "))
+"""
+
+window = GraphWin(width=800, height=800)
+
+"""
+failure_rate = float(input("What is the failure rate? "))
+# failure_rate = 0.3
+
+if failure_rate <= 0:
+    raise Exception("The failure rate should be greater than 0")
+if failure_rate >= 1:
+    raise Exception("The failure rate should be less than 1")
+"""
+
+canvas = Canvas(Point(100, 100), Point(500, 500))
+
+failure_region = canvas.RectangleFailureRegion(0.1)
+
+for i in range(0, 10):
+    canvas.draw_random_point()
+
+window.getMouse()
