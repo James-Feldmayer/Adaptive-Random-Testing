@@ -1,22 +1,6 @@
-from graphics import Circle, GraphWin, Point, Text, Rectangle
+from graphics import *
 import copy
-import sys
-import tkinter as tk
-   
-from tkinter import Button, Tk, filedialog, ttk
-   
-   
-# Function for opening the file explorer window 
-def browseFiles(): 
-    filename = filedialog.askopenfilename(initialdir = "/", 
-                                          title = "Select a File", 
-                                          filetypes = (("Text files", 
-                                                        "*.txt*"), 
-                                                       ("all files", 
-                                                        "*.*"))) 
-       
-    # Change label contents 
-    label_file_explorer.configure(text="File Opened: "+filename) 
+
 
 def euclidean_distance(pointA, pointB):
     import numpy
@@ -50,6 +34,7 @@ def draw_solid_rectangle(top_left, bottom_right, colour):
     rectangle.setOutline(colour)
     rectangle.draw(window)
 
+
 def random_point(top_left, bottom_right, colour="black"):
     import random
 
@@ -59,6 +44,7 @@ def random_point(top_left, bottom_right, colour="black"):
     point.setOutline(colour)
 
     return point
+
 
 class Canvas:
     # a canvas represents the 2d input space of a program
@@ -203,58 +189,6 @@ class Canvas:
 
         return S
 
-    def FSCS_ART(self, draw=True):
-
-        test_cases = []
-
-        first_point = self.random_point()
-
-        if draw:
-            first_point.draw(window)
-
-        if self.failure_region.failure_detected(first_point):
-            # print("HIT!!!")
-            return 1
-
-        test_cases.append(first_point)
-
-        count = 1
-
-        while(True):
-
-            # import time
-            # time.sleep(1)
-
-            count += 1
-
-            # refactor this as its own function
-
-            largest_minimum_distance_point = Point(0, 10)
-
-            largest_minimum_distance = 0
-            for i in range(0, 10):
-                new_point = self.random_point()
-
-                new_minimum_distance = calculate_minimum_distance(
-                    test_cases, new_point)
-                if new_minimum_distance > largest_minimum_distance:
-                    largest_minimum_distance = new_minimum_distance
-                    largest_minimum_distance_point = new_point
-
-            # test the program using t as a test case
-            # using "largest_minimum_distance_point"
-
-            if draw:
-                largest_minimum_distance_point.draw(window)
-
-            if self.failure_region.failure_detected(largest_minimum_distance_point):
-                # print("HIT!!!")
-                return count
-
-            test_cases.append(largest_minimum_distance_point)
-
-            # time.sleep(1)
-
     def ARTsum(self, draw=True, wait=False):
         S = self.theorem_1(h=[self.regions, self.regions])
 
@@ -324,6 +258,7 @@ class Canvas:
             count += 1
             point = self.random_point(draw)
 
+
 def sleep(wait=True, second=1):
     if wait:
         time.sleep(second)
@@ -377,182 +312,114 @@ class Scoreboard:
         print("{} wins: {}".format(self.second_algorithm, self.second_wins))
         print("draws: {}".format(self.draws))
 
+
 # is there any research to say how we should pick the regions?
 # (to catagorize a numeric field)
 # maybe do my own experiments?
 
-def sumART():
-    window1 = GraphWin(width=900, height=500)
+window = GraphWin(width=900, height=450)
 
-    rt_canvas = Canvas(Point(50, 50), Point(400, 400), 0.05, regions=10)
-    art_canvas = copy.deepcopy(rt_canvas)
-    art_canvas.translate(450, 0)
+rt_canvas = Canvas(Point(50, 50), Point(400, 400), 0.05, regions=10)
+art_canvas = copy.deepcopy(rt_canvas)
+art_canvas.translate(450, 0)
 
-    rt_canvas.display()
-    art_canvas.display()
+rt_canvas.display()
+art_canvas.display()
 
-    header1 = Text(Point(75, 20), 'RT')
-    header1.draw(window)
+header1 = Text(Point(75, 20), 'RT')
+header1.draw(window)
 
-    header2 = Text(Point(550, 20), 'ARTsum')
-    header2.draw(window)
+header2 = Text(Point(550, 20), 'ARTsum')
+header2.draw(window)
 
-    rt_score = rt_canvas.RT()
-    art_score = art_canvas.ARTsum()
+rt_score = rt_canvas.RT()
+art_score = art_canvas.ARTsum()
 
-    score1 = Text(Point(125, 20), rt_score)
-    score1.draw(window)
+score1 = Text(Point(125, 20), rt_score)
+score1.draw(window)
 
-    score2 = Text(Point(620, 20), art_score)
-    score2.draw(window)
+score2 = Text(Point(620, 20), art_score)
+score2.draw(window)
 
-    window.getMouse()
-    window.close()
+window.getMouse()
 
-def fcsART():
-    sumART()
+"""
+# BUTTON FUNCTIONS
+def startButton():
 
+
+def stopButton():
+
+
+def prevButton():
+
+
+def nextButton():
+
+
+def resetButton():
+
+
+"""
 # GUI
-window = GraphWin(width=900, height=500)
+window = tk.Tk()
+window.title("CSCI318: Practicing ART")       
+window.geometry("900x500")
 
-form = tk.Tk()
-form.title("CSCI318: Practicing ART")       
-form.geometry("1000x500")
+# WIDGETS
+NTLabel = tk.Label(window, text = "Number of Tests: ")
+RTLabel = tk.Label(window, text = "Rate of Tests: ")
+NFLabel = tk.Label(window, text = "Number of Failures: ")
 
-tab_parent = ttk.Notebook(form)
+INLabel = tk.Label(window, text = "Input")
+OUTLabel = tk.Label(window, text = "Output")
 
-tab1 = ttk.Frame(tab_parent)
-tab2 = ttk.Frame(tab_parent)
+inputText = tk.Text(window, height=10, width=40)
+outputText = tk.Text(window, height=10, width=40)
 
-tab_parent.add(tab1, text="RT vs FCS_ART")
-tab_parent.add(tab2, text="RT vs sumART")
+NTEntry = tk.Entry(window)
+NTEntry.config(state='disabled')
 
-# === WIDGETS FOR TAB ONE
-FRLabelTabOne = tk.Label(tab1, text="Failure Rate: ")
-NTLabelTabOne = tk.Label(tab1, text="Number of Tests: ")
-STLabelTabOne = tk.Label(tab1, text="Speed of Tests: ")
-RTWLabelTabOne = tk.Label(tab1, text="RT Wins: ")
-RTFLabelTabOne = tk.Label(tab1, text="F-Measure for RT: ")
-ARTWLabelTabOne = tk.Label(tab1, text="ART Wins: ")
-ARTFLabelTabOne = tk.Label(tab1, text="F-Measure for ART: ")
-ResultsLabelTabOne = tk.Label(tab1, text="Results: ")
+RTEntry = tk.Entry(window)
+RTEntry.config(state='disabled')
 
-FREntryTabOne = tk.Entry(tab1)
-NTEntryTabOne = tk.Entry(tab1)
-STEntryTabOne = tk.Entry(tab1)
+NFEntry = tk.Entry(window)
+NFEntry.config(state='disabled')
 
-RTWEntryTabOne = tk.Entry(tab1)
-RTWEntryTabOne.config(state='disabled')
+buttonStart = tk.Button(window, text="Start") #, command=startButton)
+buttonStop = tk.Button(window, text="Stop") #, command=stopButton)
 
-RTFEntryTabOne = tk.Entry(tab1)
-RTFEntryTabOne.config(state='disabled')
+buttonPrev = tk.Button(window, text="Previous") #, command=prevButton)
+buttonNext = tk.Button(window, text="Next") #, command=nextButton))
 
-ARTWEntryTabOne = tk.Entry(tab1)
-ARTWEntryTabOne.config(state='disabled')
+buttonReset = tk.Button(window, text="Reset") #, command=resetButton))
 
-ARTFEntryTabOne = tk.Entry(tab1)
-ARTFEntryTabOne.config(state='disabled')
+# ADD WIDGETS TO GRID
+NTLabel.grid(row=0, column=0, padx=15, pady=15)
+NTEntry.grid(row=0, column=1, padx=15, pady=15)
 
-buttonRunTabOne = tk.Button(tab1, text="Run", command = fcsART)
+RTLabel.grid(row=1, column=0, padx=15, pady=15)
+RTEntry.grid(row=1, column=1, padx=15, pady=15)
 
-# === ADD WIDGETS TO GRID ON TAB ONE
-FRLabelTabOne.grid(row=0, column=0, padx=15, pady=15)
-FREntryTabOne.grid(row=0, column=1, padx=15, pady=15)
+NFLabel.grid(row=2, column=0, padx=15, pady=15)
+NFEntry.grid(row=2, column=1, padx=15, pady=15)
 
-NTLabelTabOne.grid(row=1, column=0, padx=15, pady=15)
-NTEntryTabOne.grid(row=1, column=1, padx=15, pady=15)
+INLabel.grid(row=3, column=0, padx=15, pady=15)
+OUTLabel.grid(row=3, column=1, padx=15, pady=15)
 
-STLabelTabOne.grid(row=2, column=0, padx=15, pady=15)
-STEntryTabOne.grid(row=2, column=1, padx=15, pady=15)
+inputText.grid(row=4, column=0, padx=15, pady=15)
+outputText.grid(row=4, column=1, padx=15, pady=15)
 
-RTWLabelTabOne.grid(row=3, column=0, padx=15, pady=15)
-RTWEntryTabOne.grid(row=3, column=1, padx=15, pady=15)
+buttonStart.grid(row=1, column=2, padx=15, pady=15)
+buttonStop.grid(row=1, column=3, padx=15, pady=15)
 
-RTFLabelTabOne.grid(row=4, column=0, padx=15, pady=15)
-RTFEntryTabOne.grid(row=4, column=1, padx=15, pady=15)
+buttonPrev.grid(row=5, column=0, padx=15, pady=15)
+buttonNext.grid(row=5, column=1, padx=15, pady=15)
 
-ARTWLabelTabOne.grid(row=3, column=2, padx=15, pady=15)
-ARTWEntryTabOne.grid(row=3, column=3, padx=15, pady=15)
-
-ARTFLabelTabOne.grid(row=4, column=2, padx=15, pady=15)
-ARTFEntryTabOne.grid(row=4, column=3, padx=15, pady=15)
-
-buttonRunTabOne.grid(row=1, column=2, padx=15, pady=15)
-ResultsLabelTabOne.grid(row=5, column=0, padx=15, pady=15)
-
-# === WIDGETS FOR TAB TWO
-label_file_explorer = tk.Label(tab2,  
-                            text = "File Explorer using Tkinter", 
-                            width = 100, height = 4,  
-                            fg = "blue") 
-   
-button_explore = Button(tab2,  
-                        text = "Browse Files", 
-                        command = browseFiles)  
-
-FRLabelTabTwo = tk.Label(tab2, text="Failure Rate: ")
-NTLabelTabTwo = tk.Label(tab2, text="Number of Tests: ")
-STLabelTabTwo = tk.Label(tab2, text="Speed of Tests: ")
-RTWLabelTabTwo = tk.Label(tab2, text="RT Wins: ")
-RTFLabelTabTwo = tk.Label(tab2, text="F-Measure for RT: ")
-ARTWLabelTabTwo = tk.Label(tab2, text="ART Wins: ")
-ARTFLabelTabTwo = tk.Label(tab2, text="F-Measure for ART: ")
-
-FREntryTabTwo = tk.Entry(tab2)
-NTEntryTabTwo = tk.Entry(tab2)
-STEntryTabTwo = tk.Entry(tab2)
-
-RTWEntryTabTwo = tk.Entry(tab2)
-RTWEntryTabTwo.config(state='disabled')
-
-RTFEntryTabTwo = tk.Entry(tab2)
-RTFEntryTabTwo.config(state='disabled')
-
-ARTWEntryTabTwo = tk.Entry(tab2)
-ARTWEntryTabTwo.config(state='disabled')
-
-ARTFEntryTabTwo = tk.Entry(tab2)
-ARTFEntryTabTwo.config(state='disabled')
-
-buttonRunTabTwo = tk.Button(tab2, text="Run", command=sumART)
-ResultsLabelTabTwo = tk.Label(tab2, text="Results: ")
-   
-# === ADD WIDGETS TO GRID ON TAB TWO
-FRLabelTabTwo.grid(row=0, column=0, padx=15, pady=15)
-FREntryTabTwo.grid(row=0, column=1, padx=15, pady=15)
-
-NTLabelTabTwo.grid(row=1, column=0, padx=15, pady=15)
-NTEntryTabTwo.grid(row=1, column=1, padx=15, pady=15)
-
-STLabelTabTwo.grid(row=2, column=0, padx=15, pady=15)
-STEntryTabTwo.grid(row=2, column=1, padx=15, pady=15)
-
-RTWLabelTabTwo.grid(row=3, column=0, padx=15, pady=15)
-RTWEntryTabTwo.grid(row=3, column=1, padx=15, pady=15)
-
-RTFLabelTabTwo.grid(row=4, column=0, padx=15, pady=15)
-RTFEntryTabTwo.grid(row=4, column=1, padx=15, pady=15)
-
-ARTWLabelTabTwo.grid(row=3, column=2, padx=15, pady=15)
-ARTWEntryTabTwo.grid(row=3, column=3, padx=15, pady=15)
-
-ARTFLabelTabTwo.grid(row=4, column=2, padx=15, pady=15)
-ARTFEntryTabTwo.grid(row=4, column=3, padx=15, pady=15)
-
-buttonRunTabTwo.grid(row=1, column=2, padx=15, pady=15)
-ResultsLabelTabTwo.grid(row=5, column=0, padx=15, pady=15)
-
-label_file_explorer.grid(row=0, column=4)
-button_explore.grid(row=1, column=4)  
+buttonReset.grid(row=0, column=2, padx=15, pady=15)
 
 # Start GUI
-
-tab_parent.pack(expand=1, fill='both')
-
-
-window.close()
-
-form.mainloop()
+window.mainloop()
 
 """
 using tkinter to make button and what not?
