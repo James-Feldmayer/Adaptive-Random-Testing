@@ -36,7 +36,6 @@ class Stopwatch:
 
         self.running = False
 
-
 class CountdownTask:
     def __init__(self):
         self._running = False
@@ -61,7 +60,7 @@ class CountdownTask:
             NTText.set(self.count)
             RTText.set(self.rate())
             NFText.set(0)  # self.failures?
-            
+
     def run(self):
         n = 0
 
@@ -103,11 +102,13 @@ def startButton():
     global c
     c.start()
     statusText.set("Running")
+    statusLabel.configure(fg='green')
 
 def stopButton():
     global c
     c.stop()
     statusText.set("Stopped")
+    statusLabel.configure(fg='red')
 
 # need a currently running indicator
 
@@ -129,10 +130,8 @@ OUTLabel = tk.Label(window, bg='white', font=("Helvetica", 14), text="Output")
 
 statusText = tk.StringVar()
 statusLabel = tk.Label(window, bg='white',
-                        fg="Red", 
                         font=("Helvetica", 14),
-                        textvariable=statusText,
-                        text="Press button to start")
+                        textvariable=statusText)
 
 # Textbox
 inputText = tk.Text(window, font=("Helvetica", 11), height=10, width=40)
