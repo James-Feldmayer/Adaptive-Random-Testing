@@ -239,7 +239,8 @@ class ART:
                 user_function(usable_case(best_candidate))
             except:
                 n += 1
-                print(f"an error occured: {n}")
+                print(
+                    f"an error occured with input: {usable_case(best_candidate)}")
 
             # update S
             for i in range(0, self.g):
