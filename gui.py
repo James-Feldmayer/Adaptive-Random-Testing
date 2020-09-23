@@ -7,7 +7,6 @@ import ast
 
 user_function = None
 
-
 def transform(user_input_f):
     if type(re.match("def usable_case\(\S*\):", user_input_f)) == re.Match:
         # regex matched
@@ -148,9 +147,6 @@ class CountdownTask:
 
         return int(self.count / (self.s.time_lapsed() + 0.1))
 
-# this seems bad 'Metronome'
-
-
 class Metronome:
     def __init__(self, c):
         self.c = c  # CountdownTask()
@@ -165,7 +161,6 @@ class Metronome:
         while self._alive:
             self.c.updateGUI()
             time.sleep(0.1)
-
 
 class ART:
     def __init__(self):
@@ -214,10 +209,7 @@ class ART:
         for i in range(0, self.g):
             S[i][candidate[i]] += 1
 
-    # ARTsum seems to not be working
-    # I need to isolate the algorithm
-
-    def ARTsum(self):  # needs to join with Countdown
+    def ARTsum(self):
         S = self.theorem_1()
         best_candidate = self.numeric_case()
         test_cases = 0
@@ -259,11 +251,9 @@ class ART:
 
             best_candidate = self.numeric_case()
 
-# merge CountdownTask with ART
 
 
 def startButton():
-
     # user input
     inputs = inputText.get('1.0', tk.END).split('\n')
     code_location = inputs[1]
@@ -285,17 +275,16 @@ def startButton():
             c.art.ARTsum()
             c.art._running = True
 
-            # c.start()
-            # draw green rectangle to indicate running
+    statusText.set("Running")
+    statusLabel.configure(fg='green')
 
 
 def stopButton():
     global c
     c.stop()
     c.art._running = False
-    # im not sure why this wont work like CountdownTask
-
-    # draw red rectangle to indicate running
+    statusText.set("Stopped")
+    statusLabel.configure(fg='red')
 
 
 def nextButton():
@@ -310,41 +299,6 @@ def writeButton():
     outputText.insert(
         tk.INSERT, 'def usable_case(numeric_case):\n    non_numeric = ""\n    for i in range(1, numeric_case[0] + 2):\n        non_numeric += chr(numeric_case[i] + 97)\n    return non_numeric')
 
-###
-
-# I want to report errors to the user when it does not compile
-# running indicator
-# red text to textbox for error
-
-###
-
-# task 1
-# get one failing test case done first
-# update test-me.py to fail when 2 chars are the same in a row
-# detect the failure somehow
-# count that up
-# save the test case
-# write it to another text field?
-
-# task 2
-# merge CountdownTask with ART
-# it will just be called ART
-# pressing start and stop will run generate test cases
-
-# number 3
-# start is going to need to grab the text from the textfield
-# and compile it
-# report to user
-# if all good it can start running tests
-
-# task 4
-# set up some examples
-# string which has doubles in it fails
-# create a folder with a few failing programs
-
-###
-
-
 c = CountdownTask()
 m = Metronome(c)
 t = Thread(target=c.run)
@@ -355,55 +309,89 @@ t1.start()
 # Window
 window = tk.Tk()
 window.title("CSCI318: Practicing ART")
-window.geometry("925x500")
+window.geometry("1000x600")
+window.configure(bg='white')
 
 # Labels
-NTLabel = tk.Label(window, text="Number of Tests: ")
-RTLabel = tk.Label(window, text="Rate of Tests: ")
-NFLabel = tk.Label(window, text="Number of Failures: ")
-INLabel = tk.Label(window, text="Input")
-OUTLabel = tk.Label(window, text="Output")
+NTLabel = tk.Label(window, bg='white', 
+                    font=("Helvetica", 14), 
+                    text="Number of Tests: ")
+RTLabel = tk.Label(window, bg='white', 
+                    font=("Helvetica", 14), 
+                    text="Rate of Tests: ")
+NFLabel = tk.Label(window, bg='white', 
+                    font=("Helvetica", 14), 
+                    text="Number of Failures: ")
+INLabel = tk.Label(window, bg='white', 
+                    font=("Helvetica", 14), 
+                    text="Input")
+OUTLabel = tk.Label(window, bg='white', 
+                    font=("Helvetica", 14), 
+                    text="Output")
+
+statusText = tk.StringVar()
+statusLabel = tk.Label(window, bg='white',
+                        font=("Helvetica", 14),
+                        textvariable=statusText)
 
 # Textbox
-inputText = tk.Text(window, height=10, width=40)
-outputText = tk.Text(window, height=10, width=50, state="normal")
+inputText = tk.Text(window, font=("Helvetica", 11), 
+                        height=10, 
+                        width=40)
+outputText = tk.Text(window, font=("Helvetica", 11),
+                        height=10, 
+                        width=40)
 
 # Entry
 NTText = tk.StringVar()
 RTText = tk.StringVar()
 NFText = tk.StringVar()
-NTEntry = tk.Entry(window, state="readonly",
-                   textvariable=NTText)  # number of tests
-RTEntry = tk.Entry(window, state="readonly",
-                   textvariable=RTText)  # rate of tests
-NFEntry = tk.Entry(window, state="readonly",
-                   textvariable=NFText)  # number of failures
+
+NTEntry = tk.Entry(window, font=("Helvetica", 14), 
+                    state="readonly",
+                    textvariable=NTText)  # number of tests
+RTEntry = tk.Entry(window, font=("Helvetica", 14),
+                    state="readonly",
+                    textvariable=RTText)  # rate of tests
+NFEntry = tk.Entry(window, font=("Helvetica", 14),
+                    state="readonly",
+                    textvariable=NFText)  # number of failures
 
 # Buttons
-buttonStart = tk.Button(window, text="Start", command=startButton)
-buttonStop = tk.Button(window, text="Stop", command=stopButton)
-buttonPrev = tk.Button(window, text="Previous")  # , command=prevButton)
-buttonNext = tk.Button(window, text="Next", command=nextButton)
-buttonWrite = tk.Button(window, text="Write", command=writeButton)
+buttonStart = tk.Button(window, font=("Helvetica", 14), 
+                            text="Start", 
+                            command=startButton)
+buttonStop = tk.Button(window, font=("Helvetica", 14), 
+                            text="Stop", 
+                            command=stopButton)
+buttonWrite = tk.Button(window, font=("Helvetica", 14), 
+                            text="Write", 
+                            command=writeButton)
 
-# removed reset button
+buttonPrev = tk.Button(window, font=("Helvetica", 14), text="Previous")  # , command=prevButton)
+buttonNext = tk.Button(window, font=("Helvetica", 14), text="Next")  # , command=nextButton)
+
 
 # Add widgets to grid
 NTEntry.grid(row=0, column=1, padx=15, pady=15)
 RTEntry.grid(row=1, column=1, padx=15, pady=15)
 NFEntry.grid(row=2, column=1, padx=15, pady=15)
+
 NTLabel.grid(row=0, column=0, padx=15, pady=15)
 RTLabel.grid(row=1, column=0, padx=15, pady=15)
 NFLabel.grid(row=2, column=0, padx=15, pady=15)
 INLabel.grid(row=3, column=0, padx=15, pady=15)
 OUTLabel.grid(row=3, column=1, padx=15, pady=15)
+statusLabel.grid(row=0, column=2, padx=15, pady=15)
+
 inputText.grid(row=4, column=0, padx=15, pady=15)
 outputText.grid(row=4, column=1, padx=15, pady=15)
-buttonStart.grid(row=1, column=2, padx=15, pady=15)
-buttonStop.grid(row=1, column=3, padx=15, pady=15)
+
+buttonStart.grid(row=2, column=2, padx=15, pady=15)
+buttonStop.grid(row=2, column=3, padx=15, pady=15)
 buttonPrev.grid(row=5, column=0, padx=15, pady=15)
 buttonNext.grid(row=5, column=1, padx=15, pady=15)
-buttonWrite.grid(row=0, column=2, padx=15, pady=15)
+buttonWrite.grid(row=1, column=2, padx=15, pady=15)
 
 # Start GUI
 window.mainloop()
