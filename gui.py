@@ -1,12 +1,48 @@
 import tkinter as tk
 from threading import Thread
-import time
 import re
 import traceback
 import ast
 
+
+"""
+0 
+need to have some basic gui updates first!
+
+1 
+still kind of buggy because I have to open up threads I think
+
+1
+work on error handling - robustness
+
+2
+report errors to the user when it does not compile (need a good design)
+
+3
+write some more examples
+
+4
+give full failure information
+perhaps create a failure object
+that the user can scroll through a list of and display
+
+3 types of failure (all need to be handled)
+bad - tester - to command line for james feldmayer
+    could be refered to as "logging"
+good - input program - full detail option in gui for user
+good - unexpected user input - full detail option in gui for user
+    traceback.format_exc()
+    traceback.print_exc()
+
+###
+
+All of the responsiveness issues are fixed when 
+
+"""
+
 user_function = None
 
+# combine
 def transform(user_input_f):
     if type(re.match("def usable_case\(\S*\):", user_input_f)) == re.Match:
         # regex matched
@@ -15,7 +51,7 @@ def transform(user_input_f):
             exec(user_input_f, globals())  # create usable_case(list)
 
             try:
-                usable_case([7, 7, 6, 3, 13, 1, 22, 18, 17])
+                usable_case([7, 7, 6, 3, 13, 1, 22, 18, 17]) # should take user input
                 return True
             except:
                 print("An exception occurred")
@@ -73,103 +109,23 @@ class valid_program:
         except:
             print(f"Unable to find function '{function_name}'")
 
-
-class Stopwatch:
-    def __init__(self):
-        self.total = 0
-        self.end_time = 0
-        self.start_time = 0
-        self.running = False
-
-    def time_lapsed(self):
-        if self.running:
-            self.end_time = time.time()
-            self.total += (self.end_time - self.start_time)
-            self.start_time = time.time()
-        else:
-            self.total += (self.end_time - self.start_time)
-            self.start_time = time.time()
-            self.end_time = time.time()
-
-        return int(self.total)
-
-    def start(self):
-        if self.running == False:
-            self.start_time = time.time()
-
-        self.running = True
-
-    def stop(self):
-        if self.running:
-            self.end_time = time.time()
-
-        self.running = False
-
-
-class CountdownTask:
-    def __init__(self):
-        self._running = False
-        self._alive = True
-        #
-        self.s = Stopwatch()
-        self.count = 0
-        self.art = ART()
-
-    def start(self):
-        self._running = True
-        self.s.start()
-
-    def stop(self):
-        self._running = False
-        self.s.stop()
-
-    def terminate(self):
-        self._alive = False
-
-    def updateGUI(self):
-        if self.count > 0:
-            NTText.set(self.count)
-            RTText.set(self.rate())
-            NFText.set(0)  # self.failures?
-
-    def run(self):
-        time.sleep(1)
-
-        while self._alive:
-            if self._running:
-                print("n")
-
-                self.count += 1
-
-    def rate(self):
-        # if self.s.time_lapsed() == 0:
-        # return 0
-
-        return int(self.count / (self.s.time_lapsed() + 0.1))
-
-class Metronome:
-    def __init__(self, c):
-        self.c = c  # CountdownTask()
-        self._alive = True
-
-    def terminate(self):
-        self._alive = False
-        self.c.terminate()
-
-    def run(self):
-        time.sleep(1)
-        while self._alive:
-            self.c.updateGUI()
-            time.sleep(0.1)
-
 class ART:
     def __init__(self):
-        self.h = []
-        self.g = len(self.h)
-        self._running = False
+        self.A = [] # user input
 
-    def setH(self, h):
-        self.h = h
+        self.S = [] # calculate distance
+        self.attempt = 0 # number of test cases
+        self.failure = 0
+
+        # private     
+        self._running = False
+        self._alive = True
+     
+    def g(self): # number of categories
+        return len(self.A)
+
+    def h(self, i): # number of choices
+        return len(self.A[i])
 
     def zeros(self, length):
         vector = []
@@ -184,73 +140,85 @@ class ART:
 
         numeric_list = []
 
-        for domain in self.h:
+        for domain in self.A:
             numeric_list.append(random.randrange(0, domain))
 
         return numeric_list
 
-    def distance(self, test_cases, candidate, S):  # equation 3
+    # rate removed as it adds needless complexity
+
+    def updateGUI(self):
+        if self.attempt > 0:
+            NTText.set(self.attempt)
+            NFText.set(self.failure)
+
+    def distance(self, candidate):  # equation 3
         accumulate = 0
 
-        for i in range(0, self.g):
-            accumulate += (test_cases - S[i][candidate[i]])
+        for i in range(0, self.g()):
+            accumulate += (self.attempt - self.S[i][candidate[i]])
 
         return accumulate
 
     def theorem_1(self):
         S = []
 
-        for domain in self.h:
+        for domain in self.A:
             S.append(self.zeros(domain))
 
         return S
 
-    def updateS(self, candidate, S):
-        for i in range(0, self.g):
-            S[i][candidate[i]] += 1
+    def setA(self, A):
+        self.A = A
+        self.S = self.theorem_1()
 
-    def ARTsum(self):
-        S = self.theorem_1()
-        best_candidate = self.numeric_case()
-        test_cases = 0
-        n = 0
+    def updateS(self, candidate):
+        for i in range(0, self.g()):
+            self.S[i][candidate[i]] += 1
 
-        while(True):  # self._running
-            most_different = self.distance(test_cases, best_candidate, S)
+    # seems to be implemented correctly
+    # what are its dependencies?
+        # various functions and datapoints
 
-            test_cases += 1  # number of test cases
+    # update the GUI !
 
-            # print(usable_case(best_candidate))  # case
+    # design a new GUI
+    def main(self): 
 
-            if (test_cases == 100):  # keeps it running
-                print("complete")
-                return test_cases
+        while self._alive:
+            
+            if self._running:
 
-            try:
-                global user_function
-                user_function(usable_case(best_candidate))
-            except:
-                n += 1
-                print(
-                    f"an error occured with input: {usable_case(best_candidate)}")
+                best_candidate = self.numeric_case() 
+                most_different = self.distance(best_candidate)
 
-            # update S
-            for i in range(0, self.g):
-                S[i][best_candidate[i]] += 1
                 k = 3  # number of candidates
 
                 for k in range(0, k):
                     candidate = self.numeric_case()
-                    difference = self.distance(test_cases, candidate, S)
+                    difference = self.distance(candidate)
 
                     if (difference > most_different):
                         best_candidate = candidate
                         most_different = difference
 
-                # print(most_different)
+                try:
+                    global user_function
+                    user_function(usable_case(best_candidate))
+                except:
+                    self.failure += 1
 
-            best_candidate = self.numeric_case()
+                    # perhaps create a list of failure objects 
 
+                    # print(usable_case(best_candidate)) 
+                    # attempt and display the number of failures 
+
+                self.attempt += 1  # number of test cases
+                self.updateS(best_candidate)
+                
+                ###
+
+                self.updateGUI() # could probably use a better name
 
 
 def startButton():
@@ -260,7 +228,7 @@ def startButton():
     function_name = inputs[2]
     valid_input = inputs[3]
 
-    categories = ast.literal_eval(inputs[0])
+    A = ast.literal_eval(inputs[0])
     non_numeric = outputText.get('1.0', tk.END)
 
     p = valid_program()
@@ -270,19 +238,23 @@ def startButton():
         user_function = p.valid_function(function_name, valid_input)
         if (user_function != None) & transform(non_numeric):
 
-            global c
-            c.art.setH(categories)
-            c.art.ARTsum()
-            c.art._running = True
+            # 202-216 very ugly
 
-    statusText.set("Running")
-    statusLabel.configure(fg='green')
+            global c
+            c.setA(A) 
+
+            # setup ^ 
+
+            c._running = True
+
+            statusText.set("Running")
+            statusLabel.configure(fg='green')
 
 
 def stopButton():
     global c
-    c.stop()
-    c.art._running = False
+    c._running = False
+
     statusText.set("Stopped")
     statusLabel.configure(fg='red')
 
@@ -299,12 +271,11 @@ def writeButton():
     outputText.insert(
         tk.INSERT, 'def usable_case(numeric_case):\n    non_numeric = ""\n    for i in range(1, numeric_case[0] + 2):\n        non_numeric += chr(numeric_case[i] + 97)\n    return non_numeric')
 
-c = CountdownTask()
-m = Metronome(c)
-t = Thread(target=c.run)
-t1 = Thread(target=m.run)
+# creating the thread causes responsiveness problems but is required
+
+c = ART()
+t = Thread(target=c.main)
 t.start()
-t1.start()
 
 # Window
 window = tk.Tk()
@@ -395,5 +366,4 @@ buttonWrite.grid(row=1, column=2, padx=15, pady=15)
 
 # Start GUI
 window.mainloop()
-m.terminate()
-c.terminate()
+c._alive = False
