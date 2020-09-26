@@ -1,44 +1,9 @@
+
 import tkinter as tk
 from threading import Thread
 import re
 import traceback
 import ast
-
-
-"""
-0 
-need to have some basic gui updates first!
-
-1 
-still kind of buggy because I have to open up threads I think
-
-1
-work on error handling - robustness
-
-2
-report errors to the user when it does not compile (need a good design)
-
-3
-write some more examples
-
-4
-give full failure information
-perhaps create a failure object
-that the user can scroll through a list of and display
-
-3 types of failure (all need to be handled)
-bad - tester - to command line for james feldmayer
-    could be refered to as "logging"
-good - input program - full detail option in gui for user
-good - unexpected user input - full detail option in gui for user
-    traceback.format_exc()
-    traceback.print_exc()
-
-###
-
-All of the responsiveness issues are fixed when 
-
-"""
 
 user_function = None
 
@@ -51,7 +16,10 @@ def transform(user_input_f):
             exec(user_input_f, globals())  # create usable_case(list)
 
             try:
-                usable_case([7, 7, 6, 3, 13, 1, 22, 18, 17]) # should take user input
+                illegal_variable = [7, 7, 6, 3, 13, 1, 22, 18, 17] # should take user input
+                # need to demonstrate to user how there input is used
+
+                usable_case(illegal_variable)
                 return True
             except:
                 print("An exception occurred")
@@ -63,7 +31,6 @@ def transform(user_input_f):
 
     else:
         print("Did not contain function usable_case(list)")
-
 
 class valid_program:
     def __init__(self):  # what if file does not exist?
@@ -90,6 +57,9 @@ class valid_program:
                     accumulate += line + '\n'
         except:
             print(f"Unable to open '{code_location}'")
+            
+            errorText.delete('1.0', tk.END)
+            errorText.insert(tk.INSERT, f"Unable to open '{code_location}' \n")
 
         return accumulate
 
@@ -109,6 +79,10 @@ class valid_program:
         except:
             print(f"Unable to find function '{function_name}'")
 
+# very dangerous ^^
+
+###
+
 class ART:
     def __init__(self):
         self.A = [] # user input
@@ -119,7 +93,6 @@ class ART:
 
         # private     
         self._running = False
-        self._alive = True
      
     def g(self): # number of categories
         return len(self.A)
@@ -149,7 +122,7 @@ class ART:
 
     def updateGUI(self):
         if self.attempt > 0:
-            NTText.set(self.attempt)
+            NTText.set(self.attempt) 
             NFText.set(self.failure)
 
     def distance(self, candidate):  # equation 3
@@ -185,70 +158,70 @@ class ART:
     # design a new GUI
     def main(self): 
 
-        while self._alive:
+        while self._running:
             
-            if self._running:
+            best_candidate = self.numeric_case() 
+            most_different = self.distance(best_candidate)
 
-                best_candidate = self.numeric_case() 
-                most_different = self.distance(best_candidate)
+            k = 3  # number of candidates
 
-                k = 3  # number of candidates
+            for k in range(0, k):
+                candidate = self.numeric_case()
+                difference = self.distance(candidate)
 
-                for k in range(0, k):
-                    candidate = self.numeric_case()
-                    difference = self.distance(candidate)
+                if (difference > most_different):
+                    best_candidate = candidate
+                    most_different = difference
 
-                    if (difference > most_different):
-                        best_candidate = candidate
-                        most_different = difference
+            try:
+                global user_function
+                user_function(usable_case(best_candidate))
+            except:
+                self.failure += 1
 
-                try:
-                    global user_function
-                    user_function(usable_case(best_candidate))
-                except:
-                    self.failure += 1
+                # perhaps create a list of failure objects 
 
-                    # perhaps create a list of failure objects 
+                # print(usable_case(best_candidate)) 
+                # attempt and display the number of failures 
 
-                    # print(usable_case(best_candidate)) 
-                    # attempt and display the number of failures 
-
-                self.attempt += 1  # number of test cases
-                self.updateS(best_candidate)
+            self.attempt += 1  # number of test cases
+            self.updateS(best_candidate)
                 
-                ###
+            ###
 
-                self.updateGUI() # could probably use a better name
-
+            self.updateGUI() # could probably use a better name
 
 def startButton():
     # user input
-    inputs = inputText.get('1.0', tk.END).split('\n')
-    code_location = inputs[1]
-    function_name = inputs[2]
-    valid_input = inputs[3]
+    code_location = CLText.get() #
+    function_name = FNText.get() # 
+    A = ast.literal_eval(AText.get()) #
+    valid_case = VCText.get() # 
+    non_numeric = outputText.get('1.0', tk.END) # function
+ 
+    # safety
+    p = valid_program() # 1
+    if p.compile(code_location): # 2
+        global user_function # 3
+        user_function = p.valid_function(function_name, valid_case) # 4
+        if (user_function != None) & transform(non_numeric): # 5
 
-    A = ast.literal_eval(inputs[0])
-    non_numeric = outputText.get('1.0', tk.END)
+            # work on nesting try and catch better
 
-    p = valid_program()
-    if p.compile(code_location):
-
-        global user_function
-        user_function = p.valid_function(function_name, valid_input)
-        if (user_function != None) & transform(non_numeric):
-
-            # 202-216 very ugly
+            # above is very ugly
+            # might be buggy
+            # need to update the gui first
 
             global c
-            c.setA(A) 
-
-            # setup ^ 
-
+            c.setA(A) # needs its own error handling
             c._running = True
+
+            t = Thread(target=c.main)
+            t.start()
 
             statusText.set("Running")
             statusLabel.configure(fg='green')
+
 
 
 def stopButton():
@@ -264,18 +237,17 @@ def nextButton():
 
 
 def writeButton():
-    inputText.delete('1.0', tk.END)
+    CLText.set("test-me.py") 
+    FNText.set("example")
+    AText.set("[8, 26, 26, 26, 26, 26, 26, 26, 26]")
+    VCText.set("string")
     outputText.delete('1.0', tk.END)
-    inputText.insert(
-        tk.INSERT, "[8, 26, 26, 26, 26, 26, 26, 26, 26]\ntest-me.py\nexample\nstring\n")
     outputText.insert(
         tk.INSERT, 'def usable_case(numeric_case):\n    non_numeric = ""\n    for i in range(1, numeric_case[0] + 2):\n        non_numeric += chr(numeric_case[i] + 97)\n    return non_numeric')
 
-# creating the thread causes responsiveness problems but is required
 
 c = ART()
-t = Thread(target=c.main)
-t.start()
+
 
 # Window
 window = tk.Tk()
@@ -286,47 +258,71 @@ window.configure(bg='white')
 # Labels
 NTLabel = tk.Label(window, bg='white', 
                     font=("Helvetica", 14), 
-                    text="Number of Tests: ")
-RTLabel = tk.Label(window, bg='white', 
-                    font=("Helvetica", 14), 
-                    text="Rate of Tests: ")
+                    text="Number of test case:")
 NFLabel = tk.Label(window, bg='white', 
                     font=("Helvetica", 14), 
-                    text="Number of Failures: ")
+                    text="Number of failures:")
 INLabel = tk.Label(window, bg='white', 
                     font=("Helvetica", 14), 
                     text="Input")
 OUTLabel = tk.Label(window, bg='white', 
                     font=("Helvetica", 14), 
                     text="Output")
+CLLabel = tk.Label(window, bg='white', 
+                    font=("Helvetica", 14), 
+                    text="System under test:")
+FNLabel = tk.Label(window, bg='white', 
+                    font=("Helvetica", 14), 
+                    text="Function name:")
+ALabel = tk.Label(window, bg='white', 
+                    font=("Helvetica", 14), 
+                    text="Categories/choices:")
+VCLabel = tk.Label(window, bg='white', 
+                    font=("Helvetica", 14), 
+                    text="Valid case:")
 
 statusText = tk.StringVar()
+statusText.set("Not started")
 statusLabel = tk.Label(window, bg='white',
                         font=("Helvetica", 14),
-                        textvariable=statusText)
+                        textvariable=statusText, fg='black')
 
 # Textbox
-inputText = tk.Text(window, font=("Helvetica", 11), 
+
+# 
+errorText = tk.Text(window, font=("Helvetica", 11), 
                         height=10, 
-                        width=40)
+                        width=40, fg='red')
 outputText = tk.Text(window, font=("Helvetica", 11),
                         height=10, 
                         width=40)
 
 # Entry
 NTText = tk.StringVar()
-RTText = tk.StringVar()
 NFText = tk.StringVar()
+CLText = tk.StringVar()
+FNText = tk.StringVar()
+AText = tk.StringVar()
+VCText = tk.StringVar()
 
 NTEntry = tk.Entry(window, font=("Helvetica", 14), 
                     state="readonly",
                     textvariable=NTText)  # number of tests
-RTEntry = tk.Entry(window, font=("Helvetica", 14),
-                    state="readonly",
-                    textvariable=RTText)  # rate of tests
 NFEntry = tk.Entry(window, font=("Helvetica", 14),
                     state="readonly",
                     textvariable=NFText)  # number of failures
+CLEntry = tk.Entry(window, font=("Helvetica", 14), 
+                    state="normal",
+                    textvariable=CLText) # code location
+FNEntry = tk.Entry(window, font=("Helvetica", 14), 
+                    state="normal",
+                    textvariable=FNText) # function name
+AEntry = tk.Entry(window, font=("Helvetica", 14), 
+                    state="normal",
+                    textvariable=AText) # A
+VCEntry = tk.Entry(window, font=("Helvetica", 14), 
+                    state="normal",
+                    textvariable=VCText) # valid case
 
 # Buttons
 buttonStart = tk.Button(window, font=("Helvetica", 14), 
@@ -345,24 +341,33 @@ buttonNext = tk.Button(window, font=("Helvetica", 14), text="Next")  # , command
 
 # Add widgets to grid
 NTEntry.grid(row=0, column=1, padx=15, pady=15)
-RTEntry.grid(row=1, column=1, padx=15, pady=15)
-NFEntry.grid(row=2, column=1, padx=15, pady=15)
+NFEntry.grid(row=1, column=1, padx=15, pady=15)
+CLEntry.grid(row=2, column=1, padx=15, pady=15)
+FNEntry.grid(row=3, column=1, padx=15, pady=15)
+AEntry.grid(row=4, column=1, padx=15, pady=15)
+VCEntry.grid(row=5, column=1, padx=15, pady=15)
 
 NTLabel.grid(row=0, column=0, padx=15, pady=15)
-RTLabel.grid(row=1, column=0, padx=15, pady=15)
-NFLabel.grid(row=2, column=0, padx=15, pady=15)
-INLabel.grid(row=3, column=0, padx=15, pady=15)
-OUTLabel.grid(row=3, column=1, padx=15, pady=15)
+NFLabel.grid(row=1, column=0, padx=15, pady=15)
+CLLabel.grid(row=2, column=0, padx=15, pady=15)
+FNLabel.grid(row=3, column=0, padx=15, pady=15)
+ALabel.grid(row=4, column=0, padx=15, pady=15)
+VCLabel.grid(row=5, column=0, padx=15, pady=15)
+
 statusLabel.grid(row=0, column=2, padx=15, pady=15)
 
-inputText.grid(row=4, column=0, padx=15, pady=15)
-outputText.grid(row=4, column=1, padx=15, pady=15)
+# very bad name
+outputText.grid(row=6, column=1, padx=15, pady=15) # outputText
+errorText.grid(row=6, column=2, padx=15, pady=15) # outputText
 
 buttonStart.grid(row=2, column=2, padx=15, pady=15)
 buttonStop.grid(row=2, column=3, padx=15, pady=15)
-buttonPrev.grid(row=5, column=0, padx=15, pady=15)
-buttonNext.grid(row=5, column=1, padx=15, pady=15)
 buttonWrite.grid(row=1, column=2, padx=15, pady=15)
+
+# INLabel.grid(row=2, column=0, padx=15, pady=15)
+# OUTLabel.grid(row=2, column=1, padx=15, pady=15)
+# buttonPrev.grid(row=5, column=0, padx=15, pady=15)
+# buttonNext.grid(row=5, column=1, padx=15, pady=15)
 
 # Start GUI
 window.mainloop()
