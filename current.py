@@ -108,16 +108,16 @@ def update_conversion_function():
     CFELabel['text'] = ""
     ECELabel['text'] = ""
 
-    user_conversion_function = user_function(
-        CPEntry.get(), CFEntry.get())  # input, input
+    user_conversion_function = user_function(CPEntry.get(), CFEntry.get())
 
-    if(user_conversion_function.read(CPELabel)):  # label
-        if(user_conversion_function.compile(CFELabel)):  # label
-            return user_conversion_function.test(ECEntry.get(), ECELabel)
+    if(user_conversion_function.read(CPELabel)):
+        if(user_conversion_function.compile(CFELabel)):
+            return user_conversion_function.test(IDELabel['text'], ECELabel)
 
     return False
 
-# start calls update then tries to start timer
+# start calls 
+# update then tries to start timer
 
 # get it working then touch up last few usability things
 
@@ -139,13 +139,8 @@ def input_domain(label):
     try:
         input_domain = eval(IDEntry.get())
 
-        case = random_case(input_domain)
-
         label['fg'] = 'lime'
-        label['text'] = f"{case}"
-
-        ECEntry.delete(0, tk.END)  # remove this
-        ECEntry.insert(0, f"{case}")  # remove this
+        label['text'] = f"{random_case(input_domain)}"
 
         return True
 
@@ -185,7 +180,7 @@ PUTELabel = tk.Label(window, bg='white',
 
 PUTLabel.grid(row=0, column=0, padx=15, pady=15)
 PUTEntry.grid(row=0, column=1, padx=15, pady=15)
-PUTELabel.grid(row=0, column=2, padx=15, pady=15)
+PUTELabel.grid(row=0, column=2, padx=15, pady=15, sticky="w")
 
 
 # FUT = Function Under Test
@@ -201,7 +196,7 @@ FUTELabel = tk.Label(window, bg='white',
 
 FUTLabel.grid(row=1, column=0, padx=15, pady=15)
 FUTEntry.grid(row=1, column=1, padx=15, pady=15)
-FUTELabel.grid(row=1, column=2, padx=15, pady=15)
+FUTELabel.grid(row=1, column=2, padx=15, pady=15, sticky="w")
 
 
 # EI = Example Input
@@ -217,7 +212,7 @@ EIELabel = tk.Label(window, bg='white',
 
 EILabel.grid(row=2, column=0, padx=15, pady=15)
 EIEntry.grid(row=2, column=1, padx=15, pady=15)
-EIELabel.grid(row=2, column=2, padx=15, pady=15)
+EIELabel.grid(row=2, column=2, padx=15, pady=15, sticky="w")
 
 
 # ID = Input Domain
@@ -233,7 +228,7 @@ IDELabel = tk.Label(window, bg='white',
 
 IDLabel.grid(row=3, column=0, padx=15, pady=15)
 IDEntry.grid(row=3, column=1, padx=15, pady=15)
-IDELabel.grid(row=3, column=2, padx=15, pady=15)
+IDELabel.grid(row=3, column=2, padx=15, pady=15, sticky="w")
 
 
 # CP = Conversion Program
@@ -249,7 +244,7 @@ CPELabel = tk.Label(window, bg='white',
 
 CPLabel.grid(row=4, column=0, padx=15, pady=15)
 CPEntry.grid(row=4, column=1, padx=15, pady=15)
-CPELabel.grid(row=4, column=2, padx=15, pady=15)
+CPELabel.grid(row=4, column=2, padx=15, pady=15, sticky="w")
 
 
 # CF = Conversion Function
@@ -265,23 +260,14 @@ CFELabel = tk.Label(window, bg='white',
 
 CFLabel.grid(row=5, column=0, padx=15, pady=15)
 CFEntry.grid(row=5, column=1, padx=15, pady=15)
-CFELabel.grid(row=5, column=2, padx=15, pady=15)
+CFELabel.grid(row=5, column=2, padx=15, pady=15, sticky="w")
 
 
 # EC = Example conversion
-ECLabel = tk.Label(window, bg='white',
-                   font=("Helvetica", 14),
-                   text="Example conversion:")
-
-ECEntry = tk.Entry(window, font=("Helvetica", 14),
-                   state="normal")
-
 ECELabel = tk.Label(window, bg='white',
                     font=("Helvetica", 14))
 
-ECLabel.grid(row=6, column=0, padx=15, pady=15)
-ECEntry.grid(row=6, column=1, padx=15, pady=15)
-ECELabel.grid(row=6, column=2, padx=15, pady=15)
+ECELabel.grid(row=6, column=0, padx=15, pady=15, columnspan=3, sticky="w")
 
 
 # start button
@@ -306,7 +292,6 @@ EIEntry.bind("<Any-KeyRelease>", update)
 IDEntry.bind("<Any-KeyRelease>", update)
 CPEntry.bind("<Any-KeyRelease>", update)
 CFEntry.bind("<Any-KeyRelease>", update)
-ECEntry.bind("<Any-KeyRelease>", update)
 
 # Start GUI
 window.mainloop()
