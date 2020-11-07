@@ -6,6 +6,7 @@ import traceback
 import ast
 
 # turn old.py into a library
+# and random test into a library
 
 def file_string(file_location):
     accumulate = ""
@@ -186,7 +187,7 @@ def update_event(event):
 root = tk.Tk()
 root.title("CSCI318: Practical ART")
 # root.update_idletasks()
-root.geometry("800x500") # "500x500+50+50"
+root.geometry("1000x1200+50+50")
 root.configure(bg='white')
 
 # I need to resize many of these elements
@@ -317,12 +318,7 @@ StopButton = tk.Button(root, font=("Helvetica", 14),
 StopButton.grid(row=8, column=1, padx=15, pady=15)
 
 
-# start button
-BottomButton = tk.Button(root, font=("Helvetica", 14),
-                        text="Start",
-                        command=start_function)
-
-BottomButton.grid(row=9, column=0, padx=15, pady=15)
+# add a text field/s
 
 
 PUTEntry.bind("<Any-KeyRelease>", update_event)  # bind to any keyrelease
