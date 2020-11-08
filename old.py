@@ -1,86 +1,78 @@
- 
+
 class ART:
-    def __init__(self):
-        self.A = []  # user input
-        self.S = []  # calculate distance
-        self.attempt = 0  # number of test cases
-        self.failure = 0
+    def __init__(self, input_domain):
+        self.S = self.theorem_1(input_domain)
+
+        self.total_attempts = 0
+        self.total_failures = 0
 
         self._running = False
 
-    def distance(self, candidate):  # equation 3
-        accumulate = 0
+    def distance(self, selected_case):  # equation 3
+        total_distance = 0
 
-        for i in range(0, self.g()):
-            accumulate += (self.attempt - self.S[i][candidate[i]])
+        for i in range(0, len(self.S)):
+            total_distance += (self.total_attempts -
+                               self.S[i][selected_case[i]])
 
-        return accumulate
+        return total_distance
 
-    def theorem_1(self):
-        S = []
+    def theorem_1(self, input_domain):  # [1, 2] -> [[0], [0, 0]]
+        tabulation_table = []
 
-        for domain in self.A:
-            S.append(self.zeros(domain))
+        for element in input_domain:
+            tabulation_table.append([0] * element)  # [0] * 3 -> [0, 0, 0]
 
-        return S
+        return tabulation_table
 
-    def updateS(self, candidate):
-        for i in range(0, self.g()):
-            self.S[i][candidate[i]] += 1
+    def update_s(self, selected_case):
+        for i in range(0, len(self.S)):
+            self.S[i][selected_case[i]] += 1
 
     def main(self):
 
         while self._running:
 
-            best_candidate = self.numeric_case()
+            best_candidate = []  # random case
             most_different = self.distance(best_candidate)
 
             k = 3  # number of candidates
 
-            for k in range(0, k):
-                candidate = self.numeric_case()
+            for e in range(0, k):
+                candidate = []  # new case
                 difference = self.distance(candidate)
 
-                if (difference > most_different):
+                if (difference > most_different):  # should probably write a candidate class
                     best_candidate = candidate
                     most_different = difference
 
             try:
-                global user_function
+                global user_function  # change this to use our case
                 user_function(usable_case(best_candidate))
             except:
-                self.failure += 1
+                self.total_failures += 1
 
-                # perhaps create a list of failure objects
+                print(usable_case(best_candidate))
 
-                # print(usable_case(best_candidate))
-                # attempt and display the number of failures
-
-            self.attempt += 1  # number of test cases
-            self.updateS(best_candidate)
-
-            ###
-
-            self.updateGUI()  # could probably use a better name
+            self.total_attempts += 1  # number of test cases
+            self.update_s(best_candidate)
 
 
-def startButton():
+def start_function():
     if(True):
-
-        global c
-        c._running = True
-
-        thread = Thread(target=c.main)
+        global random_method
+        random_method._running = True
+        thread = Thread(target=random_method.main)
         thread.start()
 
-        # need to add comments
+
+def stop_function():
+    global random_method
+    random_method._running = False
 
 
-def stopButton():
-    global c
-    c._running = False
+random_method = ART([1, 2, 3])  # RT()
 
+random_method.main()
 
-random_method = ART()
-
-window.mainloop()
+# window.mainloop()

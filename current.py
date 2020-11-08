@@ -5,8 +5,83 @@ import re
 import traceback
 import ast
 
-# turn old.py into a library
-# and random test into a library
+function_under_test = None
+user_conversion_function = None
+
+testing_algorithm = None
+
+# maybe make some RT class
+# and get some polymorphism going
+
+# also add an executing cases label
+
+
+class ART:
+    def __init__(self, input_domain):
+        self.S = self.theorem_1(input_domain)
+        self.input_domain = input_domain
+
+        self.total_attempts = 0
+        self.total_failures = 0
+
+        self._running = False
+
+    def distance(self, selected_case):  # equation 3
+        total_distance = 0
+
+        for i in range(0, len(self.S)):
+            total_distance += (self.total_attempts -
+                               self.S[i][selected_case[i]])
+
+        return total_distance
+
+    def theorem_1(self, input_domain):  # f([1, 2]) -> [[0], [0, 0]]
+        tabulation_table = []
+
+        for element in input_domain:
+            tabulation_table.append([0] * element)  # [0] * 3 -> [0, 0, 0]
+
+        return tabulation_table
+
+    def update_s(self, selected_case):
+        for i in range(0, len(self.S)):
+            self.S[i][selected_case[i]] += 1
+
+    def main_loop(self):
+        while self._running:
+
+            best_candidate = random_case(self.input_domain)
+            best_distance = self.distance(best_candidate)
+
+            k = 3  # number of candidates
+
+            for e in range(0, k):
+                next_candidate = random_case(self.input_domain)
+                next_distance = self.distance(next_candidate)
+
+                # print(f"{e} {next_distance}")  # proof a
+
+                if (next_distance > best_distance):  # possibly write a candidate class
+                    best_candidate = next_candidate
+                    best_distance = next_distance
+
+            # print(best_distance)  # proof a
+            # print(self.total_attempts)  # proof a
+            # print()  # proof a
+
+            try:
+                global user_conversion_function, function_under_test
+                function_under_test.function(
+                    user_conversion_function.function(best_candidate))
+
+            except:
+                self.total_failures += 1
+
+                print(f"{user_conversion_function.function(best_candidate)}") # proof b
+
+            self.total_attempts += 1  # number of test cases
+            self.update_s(best_candidate)
+
 
 def file_string(file_location):
     accumulate = ""
@@ -70,19 +145,23 @@ class user_function:
 # Figure out something to test
 
 # I can't think of a better way to compile
-# Maybe do some research latter
+# Maybe do some more research latter?
 
 
 def start_function():
-    if(update_gui()):
-        print("start")
+    global testing_algorithm
+
+    if(update_gui() & testing_algorithm._running == False):
+        testing_algorithm._running = True
+        thread = Thread(target=testing_algorithm.main_loop)
+        thread.start()
 
 
 def stop_function():
-    # if running 
-    # stop running 
+    global testing_algorithm
 
-    print("stop")
+    if(testing_algorithm._running):
+        testing_algorithm._running = False
 
 
 def clear():
@@ -96,9 +175,6 @@ def clear():
     TCLabel['text'] = ""
 
 
-function_under_test = None
-user_conversion_function = None
-
 def update_function_under_test():
     global function_under_test
     function_under_test = user_function(PUTEntry.get(), FUTEntry.get())
@@ -111,28 +187,30 @@ def update_function_under_test():
 
 
 def update_conversion_function():
-    global user_conversion_function 
+    global user_conversion_function
     user_conversion_function = user_function(CPEntry.get(), CFEntry.get())
 
     if(user_conversion_function.read(CPELabel)):
         if(user_conversion_function.compile(CFELabel)):
             if(user_conversion_function.test(IDELabel['text'], ECLabel)):
-            
-                # above test ensures this is safe
-                conversion_output = user_conversion_function.function(eval(IDELabel['text']))
 
-                global function_under_test 
+                # above test ensures this is safe
+                conversion_output = user_conversion_function.function(
+                    eval(IDELabel['text']))
+
+                global function_under_test
                 function_under_test.test(f'"{conversion_output}"', TCLabel)
 
                 # if function_under_test.test() fails it should not prevent the
-                # automated test process from starting 
-                
+                # automated test process from starting
+
                 return True
 
     return False
 
-# start calls 
+# start calls
 # update then tries to start timer
+
 
 def random_case(input_domain):
     import random
@@ -166,12 +244,17 @@ def update_input_domain():
 # add label
 # remove globals after adding testing
 
+
 def update_gui():
     clear()
 
     if(update_function_under_test()):
         if(update_input_domain()):
-            return update_conversion_function()
+            if(update_conversion_function()):
+                global testing_algorithm
+                testing_algorithm = ART(eval(IDEntry.get()))  # RT()
+
+                return True
 
     return False
 
@@ -290,16 +373,15 @@ CFELabel.grid(row=5, column=2, padx=15, pady=15, sticky="w")
 
 # EC = Example conversion
 ECLabel = tk.Label(root, bg='white',
-                    font=("Helvetica", 14))
+                   font=("Helvetica", 14))
 
 ECLabel.grid(row=6, column=0, padx=15, pady=15, columnspan=3, sticky="w")
 
 # TC = Test conversion
 TCLabel = tk.Label(root, bg='white',
-                    font=("Helvetica", 14))
+                   font=("Helvetica", 14))
 
 TCLabel.grid(row=7, column=0, padx=15, pady=15, columnspan=3, sticky="w")
-
 
 
 # start button
