@@ -5,15 +5,11 @@ import re
 import traceback
 import ast
 
+
 function_under_test = None
 user_conversion_function = None
 
 testing_algorithm = None
-
-# maybe make some RT class
-# and get some polymorphism going
-
-# also add an executing cases label
 
 
 class ART:
@@ -26,7 +22,7 @@ class ART:
 
         self._running = False
 
-    def distance(self, selected_case):  # equation 3
+    def distance(self, selected_case): # equation 3
         total_distance = 0
 
         for i in range(0, len(self.S)):
@@ -35,11 +31,11 @@ class ART:
 
         return total_distance
 
-    def theorem_1(self, input_domain):  # f([1, 2]) -> [[0], [0, 0]]
+    def theorem_1(self, input_domain): # f([1, 2]) -> [[0], [0, 0]]
         tabulation_table = []
 
         for element in input_domain:
-            tabulation_table.append([0] * element)  # [0] * 3 -> [0, 0, 0]
+            tabulation_table.append([0] * element) # [0] * 3 -> [0, 0, 0]
 
         return tabulation_table
 
@@ -53,34 +49,30 @@ class ART:
             best_candidate = random_case(self.input_domain)
             best_distance = self.distance(best_candidate)
 
-            k = 3  # number of candidates
+            k = 3 # number of candidates
 
             for e in range(0, k):
                 next_candidate = random_case(self.input_domain)
                 next_distance = self.distance(next_candidate)
 
-                # print(f"{e} {next_distance}")  # proof a
-
-                if (next_distance > best_distance):  # possibly write a candidate class
+                if (next_distance > best_distance):
                     best_candidate = next_candidate
                     best_distance = next_distance
 
-            # print(best_distance)  # proof a
-            # print(self.total_attempts)  # proof a
-            # print()  # proof a
+            global user_conversion_function, function_under_test
 
             try:
-                global user_conversion_function, function_under_test
                 function_under_test.function(
                     user_conversion_function.function(best_candidate))
 
             except:
-                self.total_failures += 1
+                self.total_failures += 1 # number of failures
 
-                print(f"{user_conversion_function.function(best_candidate)}") # proof b
+                TextBox.insert(tk.END, f"{user_conversion_function.function(best_candidate)} \n")
 
-            self.total_attempts += 1  # number of test cases
-            self.update_s(best_candidate)
+            self.total_attempts += 1 # number of test cases
+
+            self.update_s(best_candidate) 
 
 
 def file_string(file_location):
@@ -142,26 +134,29 @@ class user_function:
             return False
 
 
-# Figure out something to test
-
-# I can't think of a better way to compile
-# Maybe do some more research latter?
-
-
 def start_function():
     global testing_algorithm
 
-    if(update_gui() & testing_algorithm._running == False):
-        testing_algorithm._running = True
-        thread = Thread(target=testing_algorithm.main_loop)
-        thread.start()
+    if(testing_algorithm._running == False):
+        if(update_gui()):
+            testing_algorithm._running = True
+            thread = Thread(target=testing_algorithm.main_loop)
+            thread.start()
+        
+            clear()
+            SLabel['fg'] = 'lime'
+            SLabel['text'] = 'Displaying failing test cases'
 
 
 def stop_function():
     global testing_algorithm
 
-    if(testing_algorithm._running):
+    try:
         testing_algorithm._running = False
+    except:
+        None
+
+    update_gui()
 
 
 def clear():
@@ -173,6 +168,8 @@ def clear():
     ECLabel['text'] = ""
     IDELabel['text'] = ""
     TCLabel['text'] = ""
+    SLabel['text'] = ""
+    # TextBox.delete('1.0', tk.END)
 
 
 def update_function_under_test():
@@ -208,9 +205,6 @@ def update_conversion_function():
 
     return False
 
-# start calls
-# update then tries to start timer
-
 
 def random_case(input_domain):
     import random
@@ -240,10 +234,6 @@ def update_input_domain():
 
         return False
 
-# move input domain down the bottom
-# add label
-# remove globals after adding testing
-
 
 def update_gui():
     clear()
@@ -252,7 +242,10 @@ def update_gui():
         if(update_input_domain()):
             if(update_conversion_function()):
                 global testing_algorithm
-                testing_algorithm = ART(eval(IDEntry.get()))  # RT()
+                testing_algorithm = ART(eval(IDEntry.get()))
+
+                SLabel['fg'] = 'red'
+                SLabel['text'] = 'Ready'
 
                 return True
 
@@ -263,17 +256,16 @@ def update_event(event):
     update_gui()
 
 
+
 ########################################################
 
 
 # Window
 root = tk.Tk()
 root.title("CSCI318: Practical ART")
-# root.update_idletasks()
-root.geometry("1000x1200+50+50")
+root.geometry("1000x850+50+50")
 root.configure(bg='white')
 
-# I need to resize many of these elements
 
 # PUT = Program Under Test
 PUTLabel = tk.Label(root, bg='white',
@@ -399,11 +391,21 @@ StopButton = tk.Button(root, font=("Helvetica", 14),
 
 StopButton.grid(row=8, column=1, padx=15, pady=15)
 
+# status label
+SLabel = tk.Label(root, bg='white',
+                   font=("Helvetica", 14),
+                   text="")
 
-# add a text field/s
+SLabel.grid(row=8, column=2, padx=15, pady=15, sticky="w")
+
+# text box
+TextBox = tk.Text(root, height=20, width=60)
+
+TextBox.grid(row=9, column=0, columnspan=3, padx=15, pady=15, sticky="w")
 
 
-PUTEntry.bind("<Any-KeyRelease>", update_event)  # bind to any keyrelease
+# bind to any keyrelease
+PUTEntry.bind("<Any-KeyRelease>", update_event)
 FUTEntry.bind("<Any-KeyRelease>", update_event)
 EIEntry.bind("<Any-KeyRelease>", update_event)
 IDEntry.bind("<Any-KeyRelease>", update_event)
@@ -412,3 +414,8 @@ CFEntry.bind("<Any-KeyRelease>", update_event)
 
 # Start GUI
 root.mainloop()
+
+try:
+    testing_algorithm._running = False
+except:
+    None
